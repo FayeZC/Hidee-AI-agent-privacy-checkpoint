@@ -1,0 +1,11 @@
+Hidee
+Copyright 2026 The Hidee authors
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+It bundles third-party files under their own licenses:
+
+- xterm.js and its fit addon (hidee/webui/static/vendor/), MIT License,
+  see hidee/webui/static/vendor/xterm-LICENSE.txt
+- Instrument Serif, JetBrains Mono, Source Sans 3, Source Serif 4, and Space Grotesk
+  (hidee/webui/static/fonts/), SIL Open Font License 1.1, see the OFL-*.txt files in that folder

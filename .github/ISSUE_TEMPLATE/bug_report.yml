@@ -1,0 +1,42 @@
+name: Bug report
+description: Something in Hidee does not work as described
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please do not paste API keys, customer data, or evidence log contents that hold personal data.
+        For a security problem, follow SECURITY.md instead of opening an issue.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: dropdown
+    id: agent
+    attributes:
+      label: Agent
+      options: [Claude Code, Gemini CLI, Codex CLI, Practice lesson, Shell session, Not session related]
+    validations:
+      required: true
+  - type: checkboxes
+    id: modes
+    attributes:
+      label: Modes
+      options:
+        - label: Safe mode was on
+        - label: Learn mode was on
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: Hidee version, OS, Python version, and agent version (for example `claude --version`).
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Output or screenshots
+      description: Terminal output from `hidee app`, with secrets removed.

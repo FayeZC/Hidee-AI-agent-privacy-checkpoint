@@ -1,0 +1,119 @@
+{% extends "site_base.html" %}
+{% block body %}
+<section class="hero screen">
+  <div class="hero-grid">
+    <figure class="hero-art" aria-label="A session's steps pass through Hidee: two go out, one waits for you, one is held back">
+      {% with p="hero" %}{% include "_flow_space.html" %}{% endwith %}
+      <figcaption>Guard your agent workflow with Hidee.</figcaption>
+    </figure>
+    <div class="hero-copy">
+      <h1>See higher.<br>Know deeper.</h1>
+      <p class="lede two-lines"><span>Hidee sits between your AI agent and the outside world.</span>
+        <span>A place to see what’s leaving<br>—and a moment to decide.</span></p>
+      <div class="buttons">
+        <a class="btn primary" href="{{ try_url }}/workspace">Try it online</a>
+        <a class="btn" href="/download">Download for macOS and Linux</a>
+      </div>
+      <p class="fine">Runs on your computer, in front of your AI agent.</p>
+    </div>
+  </div>
+</section>
+
+<section class="shot screen">
+  <figure data-scroll-scale>
+    <img src="/static/site/workspace.webp" srcset="/static/site/workspace.webp 1600w, /static/site/workspace@2x.webp 3200w" sizes="(min-width: 1480px) 1352px, 100vw" alt="The Hidee workspace: sessions, the AI agent in its terminal, the live flow map, and the checkpoint" width="1600" height="1000">
+    <figcaption>
+      <span><i>1</i>Sessions</span><span><i>2</i>Your AI agent, in its own terminal</span>
+      <span><i>3</i>The live flow of every step</span><span><i>4</i>The checkpoint, where you decide</span>
+    </figcaption>
+  </figure>
+</section>
+
+<section class="band screen">
+  <p class="eyebrow" data-reveal><span class="num">01</span> What Hidee watches for</p>
+  <h2 data-reveal>Four kinds of risk, named in plain words.</h2>
+  <div class="risks" data-tilt>
+    <article data-reveal style="--i:1"><h3>Privacy</h3><p>Names, emails, phone numbers, and sensitive facts about real people, even written as plain sentences.</p>
+      <code>maria.lopez@example.org</code></article>
+    <article data-reveal style="--i:2"><h3>Security</h3><p>API keys, card numbers, credential files, and commands that ask for more power.</p>
+      <code>~/.ssh/id_ed25519</code></article>
+    <article data-reveal style="--i:3"><h3>Internal</h3><p>Confidential files, private network addresses, and local paths that should stay inside.</p>
+      <code>q3-plan.pdf · CONFIDENTIAL</code></article>
+    <article data-reveal style="--i:4"><h3>Overreach</h3><p>Steps outside the folder you gave the agent, or into places it has no reason to go.</p>
+      <code>~/Documents/budget.xlsx</code></article>
+  </div>
+</section>
+
+<section class="story">
+  <p class="eyebrow" data-reveal><span class="num">02</span> How it works</p>
+  <h2 data-reveal>Ordinary work goes through. Sensitive steps wait for you.</h2>
+  <div class="story-grid">
+    <div class="story-stage" data-step="1">
+      {% with p="story" %}{% include "_flow_art.html" %}{% endwith %}
+    </div>
+    <ol class="story-steps">
+      <li class="story-step on" data-step="1"><span class="sq">1</span><h3>Start a session</h3>
+        <p>Hidee opens your AI agent in its own terminal, with a checkpoint in front of it. Your own agent settings stay as they are.</p></li>
+      <li class="story-step" data-step="2"><span class="sq">2</span><h3>Watch the flow</h3>
+        <p>Every tool call moves across a live map, from the session through Hidee to where it goes. Ordinary steps pass without a question.</p></li>
+      <li class="story-step" data-step="3"><span class="sq">3</span><h3>Decide what leaves</h3>
+        <p>When a step would carry something sensitive, or a message would go out in your name, it waits. Send a shorter version, approve it, save it as a draft, or hold it back.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="band specimen screen">
+  <p class="eyebrow" data-reveal><span class="num">03</span> Know deeper</p>
+  <div class="spec-intro">
+    <h2 data-reveal>Click any step to see exactly what it carried.</h2>
+    <p class="lede" data-reveal>Hidee can show you your data flow at a glance. No technical background? No need to worry: each step opens as
+      a simple picture of what the agent wanted to send, what Hidee let through, and what it kept back.</p>
+  </div>
+  <figure class="spec-panel" data-reveal data-tilt>
+    <div class="spec-head">
+      <h3><span class="spec-kicker">Checked step</span>{{ sample.title }}</h3>
+      <p class="spec-meta"><span class="status"><span class="dot ok"></span>{{ sample.out_word }}</span>
+        {% for r in sample.risks %}<span class="risk">{{ r }}</span>{% endfor %}</p>
+    </div>
+    <div class="spec-flow">{{ sample.flow }}</div>
+    <p class="spec-reason">{{ sample.reason }}</p>
+    <div class="spec-cols">
+      <div><h4>Asked to send</h4><p class="q">“{{ sample.asked }}”</p></div>
+      <div><h4>What was sent</h4>{% for v in sample.sent %}<p class="q sent">“{{ v }}”</p>{% endfor %}</div>
+      <div><h4>Kept back</h4>{% for v in sample.left %}<p class="q left">“{{ v }}”</p>{% endfor %}</div>
+    </div>
+  </figure>
+</section>
+
+<section class="band two screen">
+  <div>
+    <p class="eyebrow" data-reveal><span class="num">04</span> Two layers</p>
+    <h2 data-reveal>It reads the step, and it watches the wire.</h2>
+  </div>
+  <div class="layers">
+    <div data-reveal style="--i:1"><h3>The hook</h3><p>Before each tool call runs, Hidee reads what it says. When a command runs a script, Hidee reads the script too.</p></div>
+    <div data-reveal style="--i:2"><h3>The network gate</h3><p>Every connection the session makes passes through Hidee, including scripts, package managers, and the tools the agent starts. You see where each one goes.</p></div>
+  </div>
+</section>
+
+<section class="band two screen">
+  <div>
+    <p class="eyebrow" data-reveal><span class="num">05</span> Your data</p>
+    <h2 data-reveal>Your data stays on your computer.</h2>
+  </div>
+  <ul class="facts">
+    <li data-reveal style="--i:1"><b>Runs on your computer.</b> The checkpoint, the map, and every record live in <code>~/.hidee</code>.</li>
+    <li data-reveal style="--i:2"><b>No account.</b> Install it, start it, and use it. There is nothing to sign up for.</li>
+    <li data-reveal style="--i:3"><b>Nothing sent to us.</b> Hidee has no telemetry. It only talks to the places your agent was already going.</li>
+  </ul>
+</section>
+
+<section class="cta-band screen">
+  <h2 data-reveal>See higher. Know deeper.</h2>
+  <div class="buttons">
+    <a class="btn primary" href="{{ try_url }}/workspace">Try it online</a>
+    <a class="btn inverse" href="/download">Download</a>
+  </div>
+</section>
+<script src="{{ asset('site.js') }}"></script>
+{% endblock %}

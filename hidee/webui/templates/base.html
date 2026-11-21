@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hidee · {% block title %}{% endblock %}</title>
+  <link rel="preload" href="/static/fonts/space-grotesk-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="icon" href="/static/brand/hidee-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ asset('app.css') }}">
+</head>
+<body class="{{ 'embed' if embed }}">
+{% if not embed %}
+<header class="top">
+  {% with href=site_url if online else ("/workspace" if app_mode else "/") %}{% include "_brand.html" %}{% endwith %}
+  <nav>
+    {% if app_mode %}
+    {% include "_appnav.html" %}
+    {% else %}
+    <a href="/" class="{{ 'on' if active == 'review' }}">To review</a>
+    <a href="/dashboard" class="{{ 'on' if active == 'dashboard' }}">What left</a>
+    <a href="/app">App preview</a>
+    {% endif %}
+  </nav>
+</header>
+{% endif %}
+<main>
+  <p class="eyebrow">{% block eyebrow %}{% endblock %}</p>
+  <h1 class="lead">{% block lead %}{% endblock %}</h1>
+  {% block content %}{% endblock %}
+</main>
+{% if demo %}
+<div class="demo-banner">
+  <span>A demo with fictional data. Nothing here is sent anywhere.</span>
+  <form method="post" action="/demo/replay" class="demo-switch">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    {% for key, title in demos %}
+    <button name="name" value="{{ key }}" class="btn small {{ 'on' if key == demo_name }}">{{ title }}</button>
+    {% endfor %}
+    <button class="btn small" title="Start this demo again">{{ icon('refresh', 16) }} Run the demo again</button>
+  </form>
+</div>
+{% endif %}
+<script src="{{ asset('app.js') }}"></script>
+<script src="{{ asset('step.js') }}"></script>
+</body>
+</html>

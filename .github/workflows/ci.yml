@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Tests (${{ matrix.os }}, Python ${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install
+        run: python -m pip install -e ".[dev]"
+      - name: Test
+        run: python -m pytest -q tests -W error::pytest.PytestUnhandledThreadExceptionWarning
+
+  package:
+    name: Build and install the wheel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build
+        run: python -m pip install build && python -m build --wheel --outdir dist .
+      - name: Install into a clean environment and start the app
+        run: |
+          python -m venv /tmp/clean
+          /tmp/clean/bin/pip install dist/*.whl
+          export HOME=$(mktemp -d)
+          /tmp/clean/bin/hidee app --no-browser --port 8799 &
+          for i in $(seq 30); do curl -sf -o /dev/null http://127.0.0.1:8799/workspace && break; sleep 1; done
+          for u in /workspace /evidence /settings /static/vendor/xterm.js; do
+            curl -sf -o /dev/null "http://127.0.0.1:8799$u" || { echo "failed: $u"; exit 1; }
+          done
+          test "$(stat -c %a "$HOME/.hidee/app")" = 700

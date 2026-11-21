@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hidee · Workspace</title>
+  <link rel="icon" href="/static/brand/hidee-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ asset('app.css') }}">
+  <link rel="stylesheet" href="/static/vendor/xterm.css">
+  <link rel="stylesheet" href="{{ asset('workspace.css') }}">
+</head>
+<body class="workspace">
+<header class="top">
+  {% with href=site_url if online else "/workspace" %}{% include "_brand.html" %}{% endwith %}
+  <nav>
+    {% with active="workspace" %}{% include "_appnav.html" %}{% endwith %}
+  </nav>
+</header>
+{% if update %}
+<div class="update-band"><b>Hidee {{ update.version }} is available.</b>
+  {% if bundled %}<a href="https://hidee.net/download">Download it</a>{% else %}Run <code>hidee update</code> in a terminal{% endif %} ·
+  <a href="/settings#updates">What's new</a></div>
+{% endif %}
+{% if online %}
+<div class="online-band">
+  <span><b>Online demo</b></span>
+</div>
+{% endif %}
+<div class="panes">
+  <aside class="pane sessions">
+    <p class="pane-label"><span class="num">1</span> Sessions</p>
+    <ul class="session-list">
+    {% for s in sessions %}
+      <li class="{{ 'on' if current and s.id == current.id }}">
+        <a href="/workspace?s={{ s.id }}">
+          <span class="dot {{ 'ok' if s.alive else 'wait' }}"></span>
+          <span class="s-name">{{ s.name }}</span>
+          {% set kind = kinds[s.kind] if s.kind in kinds else s.kind %}{% set folder = (s.display_cwd or s.cwd).split('/')[-1] or s.cwd %}
+          <span class="s-meta">{{ (kind ~ ' · ') if kind != s.name }}{{ folder }}</span>
+        </a>
+      </li>
+    {% else %}
+      <li class="none">No sessions yet.</li>
+    {% endfor %}
+    </ul>
+    {% if not online %}
+    <a class="btn primary new-btn {{ 'on' if starting }}" href="/workspace?new=1">+ New session</a>
+    {% else %}
+    <form method="post" action="/sessions" class="new-session">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <p class="pane-label">New session</p>
+      <label>Name<input name="name" placeholder="{{ 'Clinic assistant' if online else 'Session ' ~ (sessions|length + 1) }}"></label>
+      {% if not online %}<label>Folder<input name="cwd" value="{{ default_cwd }}" spellcheck="false"></label>{% endif %}
+      <fieldset>
+        {% for key, label in kinds.items() %}
+        <label class="radio"><input type="radio" name="kind" value="{{ key }}" {{ 'checked' if loop.first }}> {{ label }}</label>
+        {% endfor %}
+      </fieldset>
+      <button class="btn primary">Start</button>
+    </form>
+    {% endif %}
+  </aside>
+
+  <div class="gutter" data-side="left" role="separator" aria-orientation="vertical" aria-label="Resize the sessions column" title="Drag to resize · double-click to reset"></div>
+  <section class="pane terminal">
+    {% if starting %}
+    <div class="start">
+      <p class="pane-label"><span class="num">2</span> New session</p>
+      <form method="post" action="/sessions" class="start-form" id="start-form">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <h2 class="start-h agent-only"><span class="sq">1</span>Where do you want to work?</h2>
+        <div class="where agent-only">
+          <label class="choice"><input type="radio" name="where" value="new" checked>
+            <span class="c-body"><b>New project</b><span class="c-sub">Hidee makes a folder for it in Hidee Projects.</span>
+              <input name="project" placeholder="Project name" autocomplete="off"></span></label>
+          <label class="choice"><input type="radio" name="where" value="open">
+            <span class="c-body"><b>Open a folder</b><span class="c-sub">Work in a folder you already have.</span>
+              <span class="pick"><input name="cwd" placeholder="No folder yet" spellcheck="false">
+                <button type="button" class="btn small" id="pick-folder">Choose…</button></span></span></label>
+        </div>
+        <h2 class="start-h"><span class="sq">2</span>Which agent?</h2>
+        <div class="row-choices">
+          {% for key, label in kinds.items() %}
+          <label class="pill"><input type="radio" name="kind" value="{{ key }}" {{ 'checked' if loop.first }}> {{ label }}</label>
+          {% endfor %}
+        </div>
+        <p class="practice-note" id="practice-note" hidden>A short, made-up task: an AI agent helps a dental clinic
+          send reminders. Its steps go through the real checkpoint, but it needs no sign-in and nothing leaves this
+          computer. Open <b>Behind the agent</b> beside the terminal to follow each step.</p>
+        <h2 class="start-h agent-only"><span class="sq">3</span>How should it sign in?</h2>
+        <div class="row-choices col agent-only">
+          <label class="pill"><input type="radio" name="signin" value="terminal" checked> Sign in the way my terminal does
+            <span class="c-sub">Your subscription, Vertex AI, or keys set in your shell.</span></label>
+          {% if saved_keys %}
+          <label class="pill"><input type="radio" name="signin" value="key"> My saved key
+            <span class="c-sub">{% for agent, label, masked in saved_keys %}{{ label }} {{ masked }} for {{ agent }}{{ ' · ' if not loop.last }}{% endfor %}. Kept in your keychain; the agent you pick uses its own key.</span></label>
+          {% else %}
+          <p class="c-sub no-key">No key saved. <a href="/settings">Add an API key in Settings</a> to start without any terminal setup.</p>
+          {% endif %}
+        </div>
+        <label class="learn-check agent-only"><input type="checkbox" name="safe" value="1" checked> Safe mode
+          <span class="c-sub">The agent can change only this project, cannot read your keys, and every connection goes through Hidee.</span></label>
+        <label class="learn-check agent-only"><input type="checkbox" name="learn" value="1"> Show what happens behind the agent <span class="c-sub">(learn mode)</span></label>
+        <button class="btn primary big-btn">Start</button>
+      </form>
+    </div>
+    {% elif current %}
+    <div class="term-head">
+      <p class="pane-label"><span class="num">2</span> {{ current.name }} <span class="cwd">{{ current.display_cwd or current.cwd }}</span></p>
+      {% if current.learn %}<a class="btn small primary" href="/behind/{{ current.id }}" target="hidee-behind">Behind the agent ↗</a>{% endif %}
+      <form method="post" action="/sessions/{{ current.id }}/close">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <button class="btn small" title="Stop this session">Close</button>
+      </form>
+    </div>
+    <div id="term-wrap"><div id="term" data-session="{{ current.id }}" data-key="{{ csrf }}"></div></div>
+    {% else %}
+    <div class="term-empty">
+      <p class="pane-label"><span class="num">2</span> Terminal</p>
+      {% if online %}
+      <p class="big">Watch an AI agent work, and decide what leaves.</p>
+      <p>The agent is helping a small dental clinic send check-up reminders. Some of its steps are ordinary; some would
+         carry a patient's details, a secret key, or a confidential file. Start the session and watch each step
+         cross the live map. When a step waits, decide in the checkpoint.</p>
+      <form method="post" action="/sessions">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <input type="hidden" name="kind" value="clinic">
+        <input type="hidden" name="name" value="Clinic assistant">
+        <button class="btn primary big-btn">Start the demo</button>
+      </form>
+      {% endif %}
+    </div>
+    {% endif %}
+  </section>
+
+  <div class="gutter" data-side="right" role="separator" aria-orientation="vertical" aria-label="Resize the live flow column" title="Drag to resize · double-click to reset"></div>
+  <aside class="pane checkpoint">
+   <div class="flow-part">
+    <p class="pane-label"><span class="num">3</span> Live flow <span class="pane-sub">see what leaves</span></p>
+    <div id="risk-bar" class="risk-bar">
+      <div data-risk="privacy" title="Personal details: email, phone, ID numbers, health, money"><b>0</b>Privacy</div>
+      <div data-risk="security" title="Keys, card numbers, credential files, admin commands"><b>0</b>Security</div>
+      <div data-risk="internal" title="Business material your rules mark as internal"><b>0</b>Internal</div>
+      <div data-risk="overreach" title="Reaching outside the project folder, or for credentials and admin rights"><b>0</b>Overreach</div>
+    </div>
+    <p class="risk-key">Steps that carried <b>personal details</b>, <b>keys or credentials</b>, <b>internal material</b>,
+      or reached <b>outside the project</b>.</p>
+    <div id="live" class="live"></div>
+    <ul id="live-list" class="live-list"></ul>
+   </div>
+   <div class="gutter-h" data-side="flow" role="separator" aria-orientation="horizontal" aria-label="Resize the live flow and the checkpoint" title="Drag to resize · double-click to reset"></div>
+   <div class="decide-part">
+    <p class="pane-label"><span class="num">4</span> Checkpoint <span class="pane-sub">decide</span> <span id="waiting-note" class="waiting-note"></span></p>
+    <iframe src="/?embed=1" title="Checkpoint"></iframe>
+   </div>
+  </aside>
+</div>
+<script src="/static/vendor/xterm.js"></script>
+<script src="/static/vendor/addon-fit.js"></script>
+<script src="{{ asset('panes.js') }}"></script>
+<script src="{{ asset('workspace.js') }}"></script>
+<script src="{{ asset('live.js') }}"></script>
+<script src="{{ asset('step.js') }}"></script>
+{% if starting %}<script src="{{ asset('start.js') }}"></script>{% endif %}
+</body>
+</html>

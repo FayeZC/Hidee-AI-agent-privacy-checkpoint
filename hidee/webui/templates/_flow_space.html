@@ -1,0 +1,82 @@
+{# The hero drawing. Flat, it reads left to right: your computer → Hidee → the outside world. In space it folds
+   into three planes: your local data at the bottom, Hidee's yes-or-no in the middle, the outside world on top.
+   What may leave rises to the top plane; what Hidee holds stays on the middle plane. #}
+{% macro glyph(name) -%}
+  {%- if name == "health" %}<rect x="5" y="3" width="14" height="18"/><path d="M12 8v6M9 11h6"/>
+  {%- elif name == "photo" %}<rect x="3" y="5" width="18" height="14"/><circle cx="9" cy="10" r="1.6"/><path d="M3 17l5-5 4 4 3-3 6 6"/>
+  {%- elif name == "contacts" %}<circle cx="12" cy="9" r="3.2"/><path d="M5.5 19c1.2-3.2 3.6-4.6 6.5-4.6s5.3 1.4 6.5 4.6"/>
+  {%- elif name == "key" %}<circle cx="8" cy="12" r="3.5"/><path d="M11.5 12H21M18 12v3M15.5 12v2.5"/>
+  {%- elif name == "bank" %}<path d="M3 9l9-5 9 5M5 9v9M9.5 9v9M14.5 9v9M19 9v9M3 20h18"/>
+  {%- elif name == "code" %}<path d="M8 7l-5 5 5 5M16 7l5 5-5 5M13.5 5l-3 14"/>
+  {%- elif name == "ai" %}<rect x="5" y="5" width="14" height="14"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/><rect x="9.5" y="9.5" width="5" height="5"/>
+  {%- elif name == "mail" %}<rect x="3" y="5.5" width="18" height="13"/><path d="M3 6l9 7 9-7"/>
+  {%- elif name == "cloud" %}<path d="M7 18h10.5a4 4 0 0 0 .5-8 5.5 5.5 0 0 0-10.6-1.4A4.6 4.6 0 0 0 7 18z"/>
+  {%- elif name == "chat" %}<path d="M4 5h16v11H9l-5 4z"/>
+  {%- elif name == "search" %}<circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l6 6"/>
+  {%- elif name == "target" %}<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.8"/>
+  {%- endif %}
+{%- endmacro %}
+{% set local = [("health", "Medical record", "diagnosis, scans"), ("photo", "Photos", "family album"),
+                ("contacts", "Contacts", "312 people"), ("key", "Keys & passwords", "API keys"),
+                ("bank", "Bank files", "statements"), ("code", "Code", "your project")] %}
+{% set outside = [("ai", "AI model", "ok", "✓ your code"), ("mail", "Email", "short", "✂ names only"),
+                  ("cloud", "Cloud drive", "wait", "⏸ waits for you"), ("chat", "Messages", "ok", "✓ one photo"),
+                  ("search", "Web search", "held", "✕ key stopped"), ("target", "Ad tracker", "held", "✕ nothing arrived")] %}
+{# which local row feeds which outside row, and what happened #}
+{% set flows = [(5, 0, "ok"), (2, 1, "short"), (0, 2, "wait"), (1, 3, "ok"), (3, 4, "held"), (4, 5, "held")] %}
+<div class="space-stage" role="img" aria-label="Your local data passes through Hidee. Code, one photo, and contact names reach the outside world; the medical record waits for your yes; the API key and the bank file are held back.">
+  <div class="rig">
+  <svg class="layer l-a" viewBox="0 0 610 400" aria-hidden="true">
+    <rect class="plane" x="-30" y="22" width="222" height="324"/>
+    <g class="grp g-left">
+      <text class="plane-label" x="0" y="44">YOUR COMPUTER</text>
+      {% for icon, name, sub in local %}{% set y = 60 + loop.index0 * 46 %}
+      <g class="tile"><rect class="box" x="0.5" y="{{ y + 0.5 }}" width="149" height="37"/>
+        <g class="glyph" transform="translate(8,{{ y + 7 }})">{{ glyph(icon) }}</g>
+        <text class="t-name" x="40" y="{{ y + 16 }}">{{ name }}</text><text class="t-sub" x="40" y="{{ y + 30 }}">{{ sub }}</text></g>
+      {% endfor %}
+    </g>
+  </svg>
+  <svg class="layer l-b" viewBox="0 0 610 400" aria-hidden="true">
+    <rect class="plane" x="200" y="22" width="222" height="324"/>
+    <g class="flows">
+      {% for a, b, kind in flows %}{% set ya = 79 + a * 46 %}{% set yb = 79 + b * 46 %}
+      <path class="f-in {{ kind }}" d="M150,{{ ya }} C204,{{ ya }} 206,167 255,167"/>
+      {% if kind != "held" %}<path class="f-out {{ kind }}" d="M355,167 C404,167 406,{{ yb }} 460,{{ yb }}"/>
+      {% else %}<path class="f-out none" d="M355,167 C404,167 406,{{ yb }} 460,{{ yb }}"/>{% endif %}
+      {% endfor %}
+    </g>
+    <g class="grp g-mid">
+      <text class="plane-label" x="228" y="44">HIDEE · YES OR NO</text>
+      <g class="held-tray"><rect x="228.5" y="52.5" width="176" height="50"/>
+        <text class="tray-h" x="238" y="68">HELD AT HIDEE</text>
+        <text class="tray-i" x="238" y="83">✕ API key → web search</text><text class="tray-i" x="238" y="96">✕ bank file → ad tracker</text></g>
+      <g transform="translate(255,120) scale(0.4167)">
+        <rect x="-14" y="-14" width="268" height="252" fill="#fff"/>
+        <rect x="0" y="0" width="76" height="224" fill="#0A0A0A"/><rect x="76" y="75" width="88" height="74" fill="#0A0A0A"/>
+        <rect x="164" y="75" width="76" height="149" fill="#0A0A0A"/><rect class="a-cell" x="164" y="0" width="76" height="75" fill="#1F3BFF"/>
+      </g>
+      <g class="ask"><rect class="ask-box" x="228.5" y="236.5" width="176" height="96"/>
+        <text class="ask-q" x="240" y="256">Upload medical-record.pdf</text><text class="ask-q" x="240" y="271">to Cloud drive?</text>
+        <text class="ask-why" x="240" y="287">PRIVACY · health record</text>
+        <rect class="yes" x="240" y="298" width="74" height="24"/><text class="yes-t" x="277" y="314">YES</text>
+        <rect class="no" x="322.5" y="298.5" width="71" height="23"/><text class="no-t" x="358" y="314">NO</text></g>
+    </g>
+  </svg>
+  <svg class="layer l-c" viewBox="0 0 610 400" aria-hidden="true">
+    <rect class="plane" x="430" y="22" width="222" height="324"/>
+    <g class="grp g-right">
+      <text class="plane-label" x="460" y="44">OUTSIDE WORLD</text>
+      {% for icon, name, cls, what in outside %}{% set y = 60 + loop.index0 * 46 %}
+      <g class="tile {{ cls }}"><rect class="box" x="460.5" y="{{ y + 0.5 }}" width="149" height="37"/>
+        <g class="glyph" transform="translate(468,{{ y + 7 }})">{{ glyph(icon) }}</g>
+        <text class="t-name" x="500" y="{{ y + 16 }}">{{ name }}</text><text class="t-sub st {{ cls }}" x="500" y="{{ y + 30 }}">{{ what }}</text></g>
+      {% endfor %}
+    </g>
+  </svg>
+  {# packets that climb between the planes in space: two reach the top, two stop at Hidee #}
+  {% for kind in ["ok", "short", "held", "wait"] %}
+  <svg class="layer packet p-{{ kind }}" viewBox="0 0 610 400" aria-hidden="true"><rect class="pk {{ kind }}" x="{{ 290 + loop.index0 * 8 }}" y="{{ 182 + loop.index0 * 8 }}" width="14" height="14"/></svg>
+  {% endfor %}
+  </div>
+</div>

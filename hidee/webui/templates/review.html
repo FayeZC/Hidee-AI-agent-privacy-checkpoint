@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}To review{% endblock %}
+{% block eyebrow %}To review{% endblock %}
+{% block lead %}{% if embed %}Nothing leaves until you decide.{% else %}Your agent wants to send this. Nothing has been sent yet.{% endif %}{% endblock %}
+{% block content %}
+<div id="cards" data-refresh="/fragments/review{{ '?embed=1' if embed }}">{% include "_cards.html" %}</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{# The product in one drawing: a session's steps pass through Hidee to four places. `p` keeps ids unique.
+   Each risky place says what kind of risk, what exactly, and what Hidee did, so "waits" never stands alone. #}
+<svg viewBox="0 0 610 400" role="img">
+  <defs>
+    <path id="{{ p }}-in" d="M110,200 L214,200"/>
+    <path id="{{ p }}-1" d="M326,198 C366,198 370,55 410,55"/>
+    <path id="{{ p }}-2" d="M326,198 C366,198 370,150 410,150"/>
+    <path id="{{ p }}-3" d="M326,198 C366,198 370,245 410,245"/>
+    <path id="{{ p }}-4" d="M326,198 C366,198 370,340 410,340"/>
+  </defs>
+  <!-- session -->
+  <rect class="a-node" x="0.5" y="170.5" width="109" height="59"/>
+  <text class="a-name" x="12" y="196">AI agent</text>
+  <text class="a-meta" x="12" y="214">your session</text>
+  <use href="#{{ p }}-in" class="a-line"/>
+  <use href="#{{ p }}-1" class="a-line out ok"/><use href="#{{ p }}-2" class="a-line out short"/>
+  <use href="#{{ p }}-3" class="a-line out wait"/><use href="#{{ p }}-4" class="a-line out held"/>
+
+  <!-- 1. ordinary: quiet -->
+  <g class="a-dest safe">
+    <rect class="box" x="410.5" y="20.5" width="199" height="69"/>
+    <text class="a-place" x="424" y="42">Web search</text>
+    <text class="a-meta" x="424" y="60">ordinary text</text>
+    <text class="a-out m-pass" x="424" y="78">checked by Hidee</text><text class="a-out ok m-end" x="424" y="78">✓ passed</text>
+  </g>
+  <!-- 2. privacy: shortened -->
+  <g class="a-dest risky">
+    <rect class="box" x="410.5" y="115.5" width="199" height="69"/><rect class="bar short" x="410" y="115" width="4" height="70"/>
+    <text class="a-place" x="424" y="137">sms.example.com</text>
+    <g class="a-risk"><rect x="424" y="146" width="62" height="16"/><text x="455" y="158">PRIVACY</text>
+      <text class="a-what" x="492" y="158">patient's phone</text></g>
+    <text class="a-out m-pass" x="424" y="173">checked by Hidee</text><text class="a-out short m-end" x="424" y="173">✂ sent without the number</text>
+  </g>
+  <!-- 3. internal: waits -->
+  <g class="a-dest risky">
+    <rect class="box" x="410.5" y="210.5" width="199" height="69"/><rect class="bar wait" x="410" y="210" width="4" height="70"/>
+    <text class="a-place" x="424" y="232">files.example.com</text>
+    <g class="a-risk"><rect x="424" y="241" width="68" height="16"/><text x="458" y="253">INTERNAL</text>
+      <text class="a-what" x="498" y="253">q3-plan.pdf</text></g>
+    <text class="a-out m-pass" x="424" y="268">checked by Hidee</text><text class="a-out wait m-end" x="424" y="268">⏸ waits for your yes</text>
+  </g>
+  <!-- 4. security: held back -->
+  <g class="a-dest risky">
+    <rect class="box" x="410.5" y="305.5" width="199" height="69"/><rect class="bar held" x="410" y="305" width="4" height="70"/>
+    <text class="a-place" x="424" y="327">~/.ssh/id_ed25519</text>
+    <g class="a-risk"><rect x="424" y="336" width="68" height="16"/><text x="458" y="348">SECURITY</text>
+      <text class="a-what" x="498" y="348">private key</text></g>
+    <text class="a-out m-pass" x="424" y="363">checked by Hidee</text><text class="a-out held m-end" x="424" y="363">✕ held back</text>
+  </g>
+
+  <!-- Hidee: the mark itself is the checkpoint -->
+  <g transform="translate(214,144) scale(0.466)">
+    <rect x="-14" y="-14" width="268" height="252" fill="#fff"/>
+    <rect x="0" y="0" width="76" height="224" fill="#0A0A0A"/><rect x="76" y="75" width="88" height="74" fill="#0A0A0A"/>
+    <rect x="164" y="75" width="76" height="149" fill="#0A0A0A"/><rect class="a-cell" x="164" y="0" width="76" height="75" fill="#1F3BFF"/>
+  </g>
+  <text class="a-label" x="270" y="282">HIDEE</text>
+
+  <!-- steps in motion -->
+  <rect class="dot in-dot" width="8" height="8" x="-4" y="-4"><animateMotion dur="1.6s" repeatCount="indefinite"><mpath href="#{{ p }}-in"/></animateMotion></rect>
+  <rect class="dot in-dot" width="8" height="8" x="-4" y="-4"><animateMotion dur="1.6s" begin="0.8s" repeatCount="indefinite"><mpath href="#{{ p }}-in"/></animateMotion></rect>
+  <rect class="dot ok" width="8" height="8" x="-4" y="-4"><animateMotion dur="2.4s" repeatCount="indefinite"><mpath href="#{{ p }}-1"/></animateMotion></rect>
+  <rect class="dot short" width="8" height="8" x="-4" y="-4"><animateMotion dur="2.4s" begin="1.2s" repeatCount="indefinite"><mpath href="#{{ p }}-2"/></animateMotion></rect>
+  <rect class="dot wait pulse" width="9" height="9" x="331" y="214"/>
+</svg>

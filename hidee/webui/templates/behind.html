@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Behind the agent · {{ name }}</title>
+  <link rel="icon" href="/static/brand/hidee-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ asset('app.css') }}">
+  <link rel="stylesheet" href="{{ asset('behind.css') }}">
+</head>
+<body class="behind">
+<header class="bh-top">
+  <div><p class="eyebrow">Behind the agent · {{ name }}</p>
+    <h1>Every step {{ agent }} takes, and where its data goes.</h1></div>
+  <div class="bh-meter" id="meter" title="Everything in the conversation goes to the model provider with each request.">
+    <span class="meta" id="meter-label">In the conversation so far</span><b id="meter-chars">0</b><span class="meta" id="meter-tokens">about 0 tokens</span>
+  </div>
+</header>
+<p class="bh-note meta" id="meter-note"></p>
+<p class="bh-legend">
+  <span><i class="where local"></i>stays on this computer</span>
+  <span><i class="where model"></i>goes to the <a class="term" href="#g-model-provider">model provider</a></span>
+  <span><i class="where outside"></i>leaves this computer for another service</span>
+</p>
+<div class="bh-tools">
+  <details class="bh-glossary" id="glossary">
+    <summary>What do these words mean?</summary>
+    <dl>
+      {% for term, text in glossary.items() %}
+      <div id="g-{{ term.split(' (')[0].lower().replace(' ', '-') }}"><dt>{{ term }}</dt><dd>{{ text }}</dd></div>
+      {% endfor %}
+    </dl>
+  </details>
+  <p class="bh-download"><span class="bh-tools-label">Download the timeline</span>
+    <a class="btn small" href="/learn/{{ session }}/export.md" download>Markdown</a>
+    <a class="btn small" href="/learn/{{ session }}/export.json" download>JSON</a></p>
+</div>
+<ol class="bh-steps" id="steps" data-session="{{ session }}">
+  <li class="bh-empty">Nothing yet. Type a request in the terminal, and each step appears here as it happens.</li>
+</ol>
+<script src="{{ asset('behind.js') }}"></script>
+</body>
+</html>

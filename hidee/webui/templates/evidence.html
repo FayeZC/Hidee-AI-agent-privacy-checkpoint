@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Evidence{% endblock %}
+{% block eyebrow %}Evidence{% endblock %}
+{% block lead %}A record of every session, kept on this computer, outside the agent's reach.{% endblock %}
+{% block content %}
+<section class="ev-head">
+  <div class="ev-state {{ 'ok' if ok else 'bad' }}">
+    <b>{{ 'Chain intact' if ok else 'Chain broken at record ' ~ bad }}</b>
+    <span class="meta">{{ count }} record{{ '' if count == 1 else 's' }} · each one carries the hash of the one before it</span>
+  </div>
+  <div class="ev-hash"><span class="meta">Latest hash (record {{ seq }})</span>
+    <code title="Write this down or send it to someone: it fixes the log as it is now.">{{ head }}</code></div>
+  <form method="post" action="/evidence/export"><input type="hidden" name="csrf" value="{{ csrf }}">
+    <button class="btn primary">Export</button></form>
+</section>
+<p class="meta ev-note">Hidee records each prompt, tool call, check, decision (by your rules or by you, with how long it
+  took), the input that actually ran, each result, each answer, and every network connection. Long text is kept as an
+  excerpt with secrets masked, plus a fingerprint (sha256) of the whole. Files: <code>{{ folder }}</code></p>
+{% if rows %}
+<table class="ev-table">
+  <thead><tr><th>Session</th><th>Agent</th><th>Started (UTC)</th><th>Records</th><th>Your decisions</th><th>Connections</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr><td><b>{{ r.name }}</b> <span class="meta">{{ r.session }}</span></td><td>{{ agents.get(r.agent, r.agent) }}</td>
+      <td>{{ r.started[:19].replace('T', ' ') }}</td><td>{{ r.records }}</td>
+      <td>{{ r.person_decisions }} of {{ r.decisions }}</td><td>{{ r.connections }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="empty"><p class="big">Nothing recorded yet.</p><p>Start a session in the <a href="/workspace">Workspace</a>; its steps are recorded here.</p></div>
+{% endif %}
+<section class="ev-rec" id="reconcile">
+  <h2>Reconcile</h2>
+  <p class="meta ev-note">Compare this log with independent records: the model provider's usage, billing, and audit
+    logs (match each request id), the destinations' logs (match destination and UTC time), and your network logs
+    (match host, port, and UTC time). A comparison is only meaningful on an intact chain.</p>
+  <form method="get" action="/evidence#reconcile" class="ev-range">
+    <label>From <input type="date" name="from" value="{{ day_from }}"></label>
+    <label>To <input type="date" name="to" value="{{ day_to }}"></label>
+    <button class="btn">Show</button>
+  </form>
+  <div class="ev-downloads">
+    <form method="post" action="/evidence/reconcile"><input type="hidden" name="csrf" value="{{ csrf }}">
+      <input type="hidden" name="day_from" value="{{ day_from }}"><input type="hidden" name="day_to" value="{{ day_to }}">
+      <button class="btn">Download reconciliation (Markdown + CSV)</button></form>
+    <form method="post" action="/evidence/timeline"><input type="hidden" name="csrf" value="{{ csrf }}">
+      <input type="hidden" name="day_from" value="{{ day_from }}"><input type="hidden" name="day_to" value="{{ day_to }}">
+      <button class="btn">Download forensic timeline (CSV)</button></form>
+  </div>
+  <p class="meta">Days are UTC{% if day_from or day_to %}: {{ day_from or 'first day' }} to {{ day_to or 'last day' }}{% else %}; all days{% endif %}.
+    Each download includes manifest.json with the chain's status, the latest hash, and the sha256 of each file.</p>
+
+  <h3>Model usage per day and model</h3>
+  {% if rec.models %}
+  <table class="ev-table">
+    <thead><tr><th>Day</th><th>Model</th><th>Requests</th><th>Input tokens</th><th>Cache read</th><th>Cache creation</th><th>Output tokens</th></tr></thead>
+    <tbody>{% for r in rec.models %}
+      <tr><td>{{ r.day }}</td><td>{{ r.model }}</td><td>{{ r.requests }}</td><td>{{ r.input_tokens }}</td>
+        <td>{{ r.cache_read_input_tokens }}</td><td>{{ r.cache_creation_input_tokens }}</td><td>{{ r.output_tokens }}</td></tr>
+    {% endfor %}</tbody>
+  </table>
+  {% else %}<p class="meta">No model requests recorded. Per-request usage is recorded for Claude Code sessions.</p>{% endif %}
+
+  <h3>Outbound actions per day and destination</h3>
+  {% if rec.actions %}
+  <table class="ev-table">
+    <thead><tr><th>Day</th><th>Destination</th>{% for c, word in choices %}<th>{{ word }}</th>{% endfor %}<th>Decided by</th></tr></thead>
+    <tbody>{% for r in rec.actions %}
+      <tr><td>{{ r.day }}</td><td>{{ r.destination }}</td>{% for c, word in choices %}<td>{{ r[c] }}</td>{% endfor %}
+        <td>{% for who, n in r.by|dictsort %}{{ who }} {{ n }}{{ ', ' if not loop.last }}{% endfor %}</td></tr>
+    {% endfor %}</tbody>
+  </table>
+  {% else %}<p class="meta">No outbound actions recorded.</p>{% endif %}
+
+  <h3>Network connections per day and host</h3>
+  {% if rec.connections %}
+  <table class="ev-table">
+    <thead><tr><th>Day</th><th>Host</th><th>Allowed</th><th>Refused</th><th>Model provider</th></tr></thead>
+    <tbody>{% for r in rec.connections %}
+      <tr><td>{{ r.day }}</td><td>{{ r.host }}</td><td>{{ r.allowed }}</td><td>{{ r.refused }}</td><td>{{ 'yes' if r.model else 'no' }}</td></tr>
+    {% endfor %}</tbody>
+  </table>
+  {% else %}<p class="meta">No connections recorded.</p>{% endif %}
+</section>
+{% endblock %}

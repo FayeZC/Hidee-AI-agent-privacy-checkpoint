@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hidee · App preview</title>
+  <link rel="preload" href="/static/fonts/space-grotesk-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{{ asset('app.css') }}">
+  <link rel="stylesheet" href="{{ asset('app_preview.css') }}">
+</head>
+<body class="appbody">
+<div class="win">
+  <header class="win-top">
+    <span class="brand small-brand">Hidee</span>
+    <span class="win-title">Your agents, with a privacy checkpoint built in</span>
+    <span class="win-actions">
+      <button class="btn small" id="guide-toggle">Hide guide</button>
+      <button class="btn small" id="replay">{{ icon('refresh', 16) }} Replay</button>
+    </span>
+  </header>
+
+  <div class="panes">
+    <!-- 1. Sessions -->
+    <aside class="pane sessions">
+      <p class="pane-label">Sessions</p>
+      <ul class="session-list">
+        <li class="session active" id="s-email">
+          <span class="s-name">{{ icon('agent', 18) }} Email results to advisor</span>
+          <span class="s-state" id="s-email-state"><span class="dot ok"></span>Working</span>
+        </li>
+        <li class="session">
+          <span class="s-name">{{ icon('agent', 18) }} Literature notes</span>
+          <span class="s-state"><span class="dot ok"></span>Working</span>
+        </li>
+        <li class="session">
+          <span class="s-name">{{ icon('agent', 18) }} Clean survey data</span>
+          <span class="s-state"><span class="dot wait"></span>Idle</span>
+        </li>
+      </ul>
+      <button class="btn small newbtn">+ New session</button>
+      <div class="guide g1"><b>1</b> Your agents. Each session is one agent doing one job. When Hidee needs you, the session moves to the top.</div>
+    </aside>
+
+    <!-- 2. Terminal -->
+    <section class="pane term-pane">
+      <div class="tabs"><span class="tab on">Claude Code · thesis-project</span><span class="tab">zsh</span><span class="tab add">+</span></div>
+      <div class="terminal" id="terminal" aria-live="polite"></div>
+      <div class="guide g2"><b>2</b> A real terminal. Start your agent here as usual. Hidee checks each time it tries to send something outside your computer.</div>
+    </section>
+
+    <!-- 3. Hidee -->
+    <aside class="pane hidee">
+      <p class="pane-label">{{ icon('shield', 18) }} Hidee</p>
+      <div id="hidee-idle" class="d-idle">
+        <p class="d-big">Watching quietly.</p>
+        <p class="meta">Safe actions go through without asking. You are only asked when something sensitive is about to leave.</p>
+      </div>
+      <article class="d-card" id="hidee-card" hidden>
+        <p class="eyebrow">Needs you</p>
+        <p class="d-flow">{{ icon('agent', 18) }} Claude Code <span class="arrow">{{ icon('arrow', 16) }}</span>
+          {{ icon('send_message', 18) }} Email <span class="arrow">{{ icon('arrow', 16) }}</span> {{ icon('service', 18) }} Prof. Rivera</p>
+        <ul class="d-items">
+          <li><span class="dot ok"></span><span><b class="c-ok">results summary</b><br><span class="q">“Accuracy improved from 71% to 84% with the new features.”</span></span></li>
+          <li><span class="dot warn"></span><span><b class="c-warn">student ID</b><br><span class="q">“Student ID 23170042”</span></span></li>
+          <li><span class="dot warn"></span><span><b class="c-warn">health information</b><br><span class="q">“Sorry I missed Tuesday; my migraine came back.”</span></span></li>
+        </ul>
+        <div class="buttons">
+          <button class="btn primary" data-choice="minimal">{{ icon('scissors', 16) }} Send shorter version</button>
+          <button class="btn" data-choice="approve">{{ icon('check', 16) }} Approve</button>
+          <button class="btn bad" data-choice="reject">{{ icon('cross', 16) }} Reject</button>
+        </div>
+      </article>
+      <div class="d-confirm" id="hidee-confirm" hidden>
+        <p class="d-question" id="confirm-question">Send the shorter version to Prof. Rivera?</p>
+        <p class="meta" id="confirm-detail">Only the results summary is sent. The student ID and health information stay on your computer.</p>
+        <div class="buttons">
+          <button class="btn primary" id="confirm-yes">Yes, send it</button>
+          <button class="btn" id="confirm-back">Go back</button>
+        </div>
+      </div>
+      <div class="d-stats">
+        <p class="pane-label">Today</p>
+        <p><b id="stat-checked">11</b> actions checked · <b id="stat-stopped">2</b> stopped · <b id="stat-asked">0</b> asked you</p>
+        <a class="meta" href="/dashboard">Open the dashboard →</a>
+      </div>
+      <div class="guide g3"><b>3</b> The Hidee checkpoint. It shows what would leave, marks what looks sensitive, and waits for you. Nothing is sent until you confirm.</div>
+    </aside>
+  </div>
+
+  <footer class="win-bottom">
+    <span><span class="dot ok"></span> Everything runs on this computer</span>
+    <span>3 sessions</span>
+    <span>Rules: thesis-project.yaml</span>
+  </footer>
+</div>
+<script src="{{ asset('app_preview.js') }}"></script>
+</body>
+</html>

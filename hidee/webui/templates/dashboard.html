@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}What left{% endblock %}
+{% block eyebrow %}What left{% endblock %}
+{% block lead %}{% if app_mode %}Where your agents' data went: every step Hidee checked, and what each service has received. Kept on this computer.{% else %}The whole picture: which agents talk to which services, and where Hidee stepped in.{% endif %}{% endblock %}
+{% block content %}
+{% if not cases %}
+{% if app_mode %}
+<div class="empty"><p class="big">No checked steps yet.</p><p>Start a session in the <a href="/workspace">Workspace</a>. Ordinary local work shows live there; steps that leave the computer or reach for credentials are kept here.</p></div>
+{% else %}
+<div class="empty"><p class="big">No activity yet.</p><p>Connect an agent, or run <code>hidee demo</code>.</p></div>
+{% endif %}
+{% else %}
+<section class="mappic">
+  {{ overview }}
+  <p class="legend">
+    <span><i class="ln ok"></i>information sent</span>
+    <span><i class="ln wait"></i>waiting for you</span>
+    <span><i class="ln bad"></i>stopped</span>
+    <span><i class="num">1</i>sensitive step: click to look closer</span>
+  </p>
+</section>
+
+<h3 class="section" id="knows">Who knows what</h3>
+{% include "_knows.html" %}
+
+<h3 class="section">Sensitive steps</h3>
+{% if sensitive %}
+<ol class="steps">
+{% for c in sensitive %}
+  <li class="{{ 'sel' if c.id == selected.id }}">
+    <a href="/dashboard?id={{ c.id }}#zoom" data-step="/step/{{ c.id }}">
+      <span class="num {{ c.out_cls }}">{{ c.step }}</span>
+      <span class="status"><span class="dot {{ c.out_cls }}"></span>{{ c.out_word }}</span>
+      <span class="case-line">{{ c.agent }} → {{ c.recipient }} <span class="flagged">· {{ c.flagged }}</span></span>
+      <span class="when">{{ c.when }}</span>
+    </a>
+  </li>
+{% endfor %}
+</ol>
+{% else %}
+<p class="meta">No sensitive steps. Everything so far followed your rules.</p>
+{% endif %}
+
+<section class="detail" id="zoom">
+  <p class="eyebrow">{% if step %}Step {{ step }} up close{% else %}Up close{% endif %}</p>
+  <h2>{{ icon(selected.kind_key, 26) }} {{ selected.agent }} → {{ selected.recipient }} <span class="when">{{ selected.when }}</span></h2>
+  <div class="flowpic">{{ flow }}</div>
+  <p class="reason">{{ selected.reason }}</p>
+  <div class="cols">
+    <div>
+      <h3>What happened</h3>
+      <ol class="timeline">{% for e in events %}<li><span class="when">{{ e.when }}</span>{{ e.text }}</li>{% endfor %}</ol>
+    </div>
+    <div>
+      <h3>What was sent</h3>
+      {% if selected.executed %}
+      <ul class="sent">{% for k, v in selected.executed.items() %}<li>“{{ v }}”</li>{% endfor %}</ul>
+      {% else %}<p class="meta">Nothing was sent.</p>{% endif %}
+      <h3>{{ selected.recipient }} has received so far</h3>
+      <ul class="received">{% for cat, n in received %}<li><span class="dot ok"></span>{{ cat }} × {{ n }}</li>{% else %}<li class="meta">nothing yet</li>{% endfor %}</ul>
+    </div>
+  </div>
+</section>
+
+<details class="activity">
+  <summary>All activity ({{ cases|length }})</summary>
+  <ul class="cases">
+  {% for c in cases %}
+    <li class="{{ 'sel' if c.id == selected.id }}">
+      <a href="/dashboard?id={{ c.id }}#zoom" data-step="/step/{{ c.id }}">
+        <span class="status"><span class="dot {{ c.out_cls }}"></span>{{ c.out_word }}</span>
+        <span class="case-line">{{ icon(c.kind_key, 18) }} {{ c.agent }} → {{ c.recipient }}</span>
+        <span class="when">{{ c.when }}</span>
+      </a>
+    </li>
+  {% endfor %}
+  </ul>
+</details>
+{% endif %}
+{% endblock %}

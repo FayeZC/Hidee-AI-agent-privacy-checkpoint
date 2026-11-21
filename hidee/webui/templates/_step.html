@@ -1,0 +1,31 @@
+{# One step as a picture, shown in a pop-up over the workspace or the dashboard. #}
+<div class="step-panel" role="dialog" aria-modal="true" aria-label="Step details">
+  <div class="step-head">
+    <p class="eyebrow">{{ eyebrow }}</p>
+    <button class="step-close" type="button" aria-label="Close">×</button>
+  </div>
+  <h2>{{ title }}</h2>
+  <p class="step-meta">
+    <span class="status"><span class="dot {{ out_cls }}"></span>{{ out_word }}</span>
+    {% for r in risks %}<span class="risk">{{ r }}</span>{% endfor %}
+    <span class="when">{{ when }}</span>
+  </p>
+  <div class="flowpic">{{ flow }}</div>
+  {% if reason %}<p class="reason">{{ reason }}</p>{% endif %}
+  <div class="cols">
+    <div>
+      <h3>What happened</h3>
+      <ol class="timeline">{% for e in events %}<li><span class="when">{{ e.when }}</span>{{ e.text }}</li>{% endfor %}</ol>
+    </div>
+    <div>
+      <h3>{{ sent_title }}</h3>
+      {% if sent %}<ul class="sent">{% for v in sent %}<li>“{{ v }}”</li>{% endfor %}</ul>
+      {% else %}<p class="meta">{{ nothing_sent }}</p>{% endif %}
+      {% if left %}<h3>Left out</h3><ul class="sent left">{% for v in left %}<li>“{{ v }}”</li>{% endfor %}</ul>{% endif %}
+    </div>
+  </div>
+  <div class="step-foot">
+    {% if waiting %}<a class="btn primary" href="{{ decide_href }}">Decide in the checkpoint</a>{% endif %}
+    {% if dashboard_href %}<a class="btn" href="{{ dashboard_href }}">Open in What left</a>{% endif %}
+  </div>
+</div>

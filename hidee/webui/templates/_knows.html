@@ -1,0 +1,24 @@
+{# What each service has received, by kind of information. Used on the What left page. #}
+{% if not rows %}
+<p class="meta">Nothing has left yet. When you let a step through, what it carried shows up here, grouped by the service that received it.</p>
+{% else %}
+<div class="knows-wrap">
+<table class="knows">
+  <thead><tr><th scope="col" class="who">Received by</th>
+    {% for key, label in columns %}<th scope="col"><span>{{ label }}</span></th>{% endfor %}</tr></thead>
+  <tbody>
+  {% for p in rows %}
+    <tr><th scope="row" class="who"><b>{{ p.label }}</b>
+        <span class="meta">{{ p.total }} item{{ '' if p.total == 1 else 's' }} · last {{ p.last }}</span></th>
+      {% for key, label in columns %}{% set c = p.cells.get(key) %}
+      <td>{% if c %}<a class="cell l{{ c.level }}" href="/dashboard?id={{ c.last_action }}#zoom"
+             title="{{ label }} sent to {{ p.label }} {{ c.n }} time{{ '' if c.n == 1 else 's' }}">{{ c.n }}</a>
+          {% else %}<span class="cell none" aria-label="never sent"></span>{% endif %}</td>
+      {% endfor %}</tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<p class="legend knows-legend"><span><i class="cell l1"></i>sent once</span><span><i class="cell l3"></i>sent often</span>
+  <span><i class="cell none"></i>never sent</span><span>Click a square to open the last step that sent it.</span></p>
+{% endif %}

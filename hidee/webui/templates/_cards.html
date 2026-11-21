@@ -1,0 +1,49 @@
+{% if not cards %}
+<div class="empty">
+  <p class="big">Nothing is waiting for you.</p>
+  {% if embed %}
+  <p>When a session tries to send something your rules do not cover, it appears here and the session waits for
+     your answer.</p>
+  {% else %}
+  <p>When an agent tries to share something your rules do not cover, it appears here.
+     To see an example, run <code>hidee demo</code>.</p>
+  {% endif %}
+</div>
+{% endif %}
+{% for c in cards %}
+{% if total > 1 %}<p class="count">1 of {{ total }} waiting</p>{% endif %}
+<article class="card">
+  <div class="flow">
+    <span class="node">{{ icon('agent') }}{{ c.agent }}</span>
+    <span class="arrow">{{ icon('arrow', 20) }}</span>
+    <span class="node">{{ icon(c.kind_key) }}{{ c.kind }}</span>
+    <span class="arrow">{{ icon('arrow', 20) }}</span>
+    <span class="node">{{ icon('service') }}{{ c.recipient }}</span>
+  </div>
+  <ul class="items">
+  {% for r in c.rows %}
+    <li>
+      <span class="tag {{ r.cls }}"><span class="dot {{ r.cls }}"></span><span><b>{{ r.category }}</b><br>{{ r.word }}</span></span>
+      <span class="text">“{{ r.original }}”</span>
+      {% if r.dropped %}<span class="cut">{{ icon('scissors', 16) }} removed in shorter version</span>{% endif %}
+      {% if r.kept_requested %}<span class="cut">kept in shorter version: your request names it</span>{% endif %}
+      {% if r.kept_destination %}<span class="cut">kept in shorter version: where it is sent</span>{% endif %}
+    </li>
+  {% endfor %}
+  </ul>
+  {% if c.is_message %}<p class="note">A message to a person. This is the full text that would go out in your name.
+  {% if c.attribution %}It includes wording you did not write: “{{ c.attribution|join('”, “') }}”.{% endif %}</p>{% endif %}
+  <form method="get" action="/confirm/{{ c.id }}" class="buttons">
+    {% if embed %}<input type="hidden" name="embed" value="1">{% endif %}
+    {% if c.is_message %}
+    <button name="choice" value="approve" class="btn primary">{{ icon('check', 18) }} Send it now</button>
+    <button name="choice" value="draft" class="btn">Save as a draft for me</button>
+    {% if c.has_minimal %}<button name="choice" value="minimal" class="btn">{{ icon('scissors', 18) }} Send shorter version</button>{% endif %}
+    {% else %}
+    {% if c.has_minimal %}<button name="choice" value="minimal" class="btn primary">{{ icon('scissors', 18) }} Send shorter version</button>{% endif %}
+    <button name="choice" value="approve" class="btn {{ '' if c.has_minimal else 'primary' }}">{{ icon('check', 18) }} Approve as written</button>
+    {% endif %}
+    <button name="choice" value="reject" class="btn bad">{{ icon('cross', 18) }} Reject</button>
+  </form>
+</article>
+{% endfor %}

@@ -1,0 +1,77 @@
+{% extends "site_base.html" %}
+{% block title %}Hidee docs{% endblock %}
+{% block body %}
+<section class="page docs">
+  <aside class="toc">
+    <p class="eyebrow">Docs</p>
+    <a href="#start">Quick start</a><a href="#checks">What Hidee checks</a><a href="#risks">Four kinds of risk</a>
+    <a href="#decide">Deciding</a><a href="#rules">Rules</a><a href="#limits">What it cannot see</a><a href="#data">Your data</a>
+  </aside>
+  <article>
+    <h1 class="page-title">How to use Hidee</h1>
+
+    <h2 id="start">Quick start</h2>
+    <p>Install Hidee from the <a href="/download">download page</a>, then run <code>hidee app</code>. Hidee opens in its
+      own window. Start a session with your AI agent (Claude Code, Gemini CLI, or Codex CLI) in the folder you want
+      it to work in, and use it as you normally would. The practice lesson shows the whole thing with a scripted agent
+      and needs no sign-in.</p>
+    <p>Hidee starts the agent with one extra setting: a hook that sends each tool call to Hidee before it runs. It also
+      routes the session's connections through Hidee. Your own agent settings do not change, and nothing is checked
+      outside Hidee's sessions. Safe mode, on by default, also puts the agent in a sandbox (for Gemini CLI and Codex CLI,
+      on macOS).</p>
+
+    <h2 id="checks">What Hidee checks</h2>
+    <table class="spec">
+      <tr><th>Step</th><th>What Hidee does</th></tr>
+      <tr><td>Reading and editing files in the session folder</td><td>Shows it on the map. No question asked.</td></tr>
+      <tr><td>Files outside the session folder</td><td>Runs, and marks it as overreach.</td></tr>
+      <tr><td>Credential files such as <code>.env</code> or <code>~/.ssh</code>, and privileged commands such as <code>sudo</code></td><td>Waits for you.</td></tr>
+      <tr><td>Web searches, page fetches, MCP tools, network commands</td><td>Ordinary text goes through. Personal, secret, or internal details, sensitive facts in plain sentences, and values from your sensitive files wait for you.</td></tr>
+      <tr><td>A message the agent sends to a person in your name: a chat message, an email, a post</td><td>Always waits, even when your rules allow it. Send it now, save it as a draft for you, send a shorter version, or reject it.</td></tr>
+      <tr><td>A command that runs a script</td><td>Reads the script, and treats what it sends like any other step.</td></tr>
+      <tr><td>Any connection the session opens</td><td>Shows where it went. Hosts you forbid are refused.</td></tr>
+      <tr><td>Traffic to the model provider</td><td>Always passes, and shows as its own flow, because the agent sends what it reads there.</td></tr>
+    </table>
+
+    <h2 id="risks">Four kinds of risk</h2>
+    <p><b>Privacy</b> means details about real people: emails, phone numbers, government IDs, health and pay.
+      <b>Security</b> means keys, card numbers, credential files, and privileged commands. <b>Internal</b> means
+      confidentiality markers, private network addresses, and local file paths leaving the computer.
+      <b>Overreach</b> means steps beyond the folder you gave the agent. The counts at the top of the live map add up
+      what each session has done.</p>
+    <p>Privacy also covers <b>sensitive facts written as plain sentences</b>, such as "Jane is being treated for
+      depression": health, sexual orientation, religion, political opinions, finances, legal trouble, immigration
+      status, and family matters, when the sentence is about a person. And it covers <b>your own records</b>: list
+      the files that hold them (a customer list, patient records) in <code>.hidee/sensitive</code> in the project
+      folder, and their names, dates, and account numbers are held like any other personal detail. All of this runs
+      on your computer, with no model and no connection.</p>
+
+    <h2 id="decide">Deciding</h2>
+    <p>A waiting step appears in the checkpoint with what it would send and why it stopped. You can send a
+      <b>shorter version</b>, <b>approve</b> it as written, or <b>reject</b> it. The shorter version replaces the
+      sensitive parts with placeholders but keeps the address the call goes to and the details your own request names,
+      so a reminder still reaches its recipient. A rejection can carry a short reason the agent is told, such as
+      "resend without the phone number". A message to a person also offers <b>Send it now</b> and <b>Save as a draft
+      for me</b>. Every choice asks you to confirm, so a slip of the mouse changes nothing. A step nobody decides within
+      ten minutes is refused.</p>
+
+    <h2 id="rules">Rules</h2>
+    <p>Rules live in <code>~/.hidee/app/rules.yaml</code>, and Hidee reloads them when the file changes. Each rule names
+      a session (<code>"*"</code> for any), a kind of step, a destination (<code>"*"</code> for any), the kinds of
+      information allowed without asking, and the kinds never allowed. To refuse a host outright:</p>
+    <pre class="cmd"><code>recipients:
+  tracker.example: a tracker
+rules:
+  - {agent: "*", kind: network, recipient: tracker.example, forbid: [plain]}</code></pre>
+
+    <h2 id="limits">What it cannot see</h2>
+    <p>For HTTPS, the network gate sees where a connection goes, not what it carries. Programs that ignore proxy
+      settings or open raw sockets are not covered.</p>
+
+    <h2 id="data">Your data</h2>
+    <p>Hidee keeps its records in <code>~/.hidee</code> on your computer. The record of each checked step stays there
+      for you to review; the live map is kept in memory only. Hidee has no account and sends nothing to us. It checks
+      for updates only if you said yes, and then only for the version number.</p>
+  </article>
+</section>
+{% endblock %}

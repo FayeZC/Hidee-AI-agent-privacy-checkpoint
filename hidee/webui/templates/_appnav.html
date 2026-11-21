@@ -1,0 +1,7 @@
+{# The app's navigation, in the order of the story: see and decide (Workspace), what left, the record. #}
+{% if online %}<a href="{{ site_url }}/" class="back">← Hidee home</a>{% endif %}
+<a href="/workspace" class="{{ 'on' if active == 'workspace' }}" title="Watch the agent and decide what leaves">Workspace</a>
+<a href="/dashboard" class="{{ 'on' if active == 'dashboard' }}" title="Where your agents' data went">What left</a>
+{% if not online %}<a href="/evidence" class="{{ 'on' if active == 'evidence' }}" title="The record of every session">Evidence</a>
+<a href="/settings" class="{{ 'on' if active == 'settings' }}">Settings</a>{% endif %}
+{% if online %}<a href="{{ download_url or (site_url ~ '/download') }}" class="cta">Download Hidee</a>{% endif %}

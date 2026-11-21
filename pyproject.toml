@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hidee"
+version = "0.3.0"
+description = "A local privacy checkpoint and evidence log for AI agents (Claude Code, Gemini CLI, Codex CLI)"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+requires-python = ">=3.11"
+authors = [{ name = "The Hidee authors" }]
+keywords = ["ai-agents", "privacy", "claude-code", "gemini-cli", "codex", "hooks", "audit-log", "data-protection"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Web Environment",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Education",
+  "Operating System :: MacOS",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Security",
+]
+dependencies = [
+  "fastapi>=0.110",
+  "uvicorn>=0.29",
+  "jinja2>=3.1",
+  "pyyaml>=6",
+  "httpx>=0.27",
+  "python-multipart>=0.0.9",
+  "websockets>=12",
+  "pywebview>=5; sys_platform == 'darwin'",   # Hidee's own window on macOS (Linux: pip install pywebview[gtk])
+]
+
+[project.urls]
+Homepage = "https://github.com/FayeZC/Hidee-AI-agent-privacy-checkpoint"
+Documentation = "https://github.com/FayeZC/Hidee-AI-agent-privacy-checkpoint/tree/main/docs"
+Issues = "https://github.com/FayeZC/Hidee-AI-agent-privacy-checkpoint/issues"
+Changelog = "https://github.com/FayeZC/Hidee-AI-agent-privacy-checkpoint/blob/main/CHANGELOG.md"
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+hidee = "hidee.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["hidee*"]
+
+[tool.setuptools.package-data]
+hidee = ["webui/templates/*.html", "webui/static/*.*", "webui/static/fonts/*", "webui/static/vendor/*", "webui/static/brand/*", "webui/static/site/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

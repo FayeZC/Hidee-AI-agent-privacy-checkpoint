@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block eyebrow %}Settings{% endblock %}
+{% block lead %}Your own AI keys, so an agent can start without any terminal setup.{% endblock %}
+{% block content %}
+<p class="meta keys-note">Each key is kept in your computer's keychain and given only to the sessions you start with it.
+  Already signed in from your terminal, with a subscription or Vertex AI? Then you need no key here.</p>
+<ul class="keys">
+{% for r in rows %}
+  <li id="{{ r.id }}">
+    <div class="k-who"><b>{{ r.label }}</b><span class="meta">for {{ r.agent }}{% if r.soon %} · coming soon{% endif %}</span></div>
+    <div class="k-state">
+      {% if r.saved %}<span class="k-saved"><span class="dot ok"></span>Saved {{ r.saved }}</span>
+      {% else %}<span class="k-none">Not saved</span>{% endif %}
+      {% if r.check %}<span class="k-check {{ 'ok' if r.check[0] else 'bad' }}">{{ r.check[1] }}</span>{% endif %}
+      {% if error == r.id %}<span class="k-check bad">That does not look like an API key.</span>{% endif %}
+    </div>
+    <div class="k-actions">
+      {% if r.saved %}
+      <form method="post" action="/settings/keys/{{ r.id }}/test"><input type="hidden" name="csrf" value="{{ csrf }}">
+        <button class="btn small">Test it</button></form>
+      <form method="post" action="/settings/keys/{{ r.id }}/remove"><input type="hidden" name="csrf" value="{{ csrf }}">
+        <button class="btn small bad">Remove</button></form>
+      {% else %}
+      <form method="post" action="/settings/keys/{{ r.id }}" class="k-add"><input type="hidden" name="csrf" value="{{ csrf }}">
+        <input name="key" type="password" autocomplete="off" spellcheck="false" placeholder="Paste your {{ r.label }} key" aria-label="{{ r.label }} API key">
+        <button class="btn small primary">Save</button></form>
+      <span class="meta k-hint">{{ r.hint }}</span>
+      {% endif %}
+    </div>
+  </li>
+{% endfor %}
+</ul>
+{% if update %}
+<section class="updates" id="updates">
+  <h2 class="section-h">Updates</h2>
+  <p class="meta">You have Hidee {{ version }}.{% if update.last %} Last checked {{ update.last }}.{% endif %}</p>
+  {% if update.available %}
+  <div class="update-new"><b>Hidee {{ update.available.version }} is available.</b>
+    {% if update.available.notes %}<ul>{% for n in update.available.notes %}<li>{{ n }}</li>{% endfor %}</ul>{% endif %}
+    {% if bundled %}<p>Download it from <a href="https://hidee.net/download">hidee.net/download</a> and drag the new Hidee into Applications.</p>
+    {% else %}<p>To install it, run <code>hidee update</code> in a terminal. It checks the release signature first, then asks you.</p>{% endif %}</div>
+  {% endif %}
+  {% if update.note %}<p class="k-check">{{ update.note }}</p>{% endif %}
+  <form method="post" action="/settings/updates" class="update-form"><input type="hidden" name="csrf" value="{{ csrf }}">
+    <label class="learn-check"><input type="checkbox" name="check" value="on" {{ 'checked' if update.consent }}
+      onchange="this.form.submit()"> Check for updates every 2 weeks
+      <span class="c-sub">One request to hidee.net for the newest version number. No account, no id, nothing about your work.
+        {% if update.consent is none %}You have not chosen yet, so Hidee does not check.{% endif %}</span></label>
+  </form>
+  <form method="post" action="/settings/updates/check"><input type="hidden" name="csrf" value="{{ csrf }}">
+    <button class="btn small">Check now</button></form>
+</section>
+{% endif %}
+<section class="your-data" id="data">
+  <h2 class="section-h">Your data</h2>
+  <ul class="trust">
+    <li><b>Nothing is sent to us.</b> No account, no telemetry. Hidee checks for updates only if you said yes, and only for the version number. Otherwise it only passes on what your agent was already sending, to where it was already going.</li>
+    <li><b>It stays on this computer.</b> Everything Hidee keeps is in one folder that only your user account can open.</li>
+    <li><b>It keeps as little as it can.</b> Long text is kept as a short excerpt with secrets masked, plus a fingerprint of the whole.</li>
+    <li><b>You can see all of it.</b> The files are plain text and SQLite; you can read, copy, or delete them.</li>
+  </ul>
+  <table class="ev-table data-table">
+    <thead><tr><th>What</th><th>Size</th><th>What it holds</th></tr></thead>
+    <tbody>{% for d in data %}<tr><td><b>{{ d.what }}</b><br><code>{{ d.path }}</code></td>
+      <td>{{ '%.1f'|format(d.bytes / 1024) }} KB</td><td>{{ d.about }}</td></tr>{% endfor %}</tbody>
+  </table>
+  <form method="post" action="/settings/reveal" class="data-actions"><input type="hidden" name="csrf" value="{{ csrf }}">
+    <button class="btn">Show the folder</button>
+    <span class="meta">To remove everything, quit Hidee and delete <code>{{ home }}</code>. API keys are in your keychain under “hidee”.</span></form>
+</section>
+{% endblock %}

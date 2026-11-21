@@ -1,0 +1,63 @@
+{% extends "site_base.html" %}
+{% block title %}Download Hidee{% endblock %}
+{% block body %}
+<section class="page">
+  <p class="eyebrow">Download</p>
+  <h1 class="page-title">Download Hidee.</h1>
+  <p class="lede">Hidee runs on your own computer, beside the AI agent you already use: Claude Code, Gemini CLI, or
+    Codex CLI. To look around first, the practice lesson needs no agent and no sign-in.</p>
+
+  {% if mac_app %}
+  <div class="mac-app" id="mac">
+    <div>
+      <h2>Hidee for Mac</h2>
+      <p>Open the disk image and drag Hidee into Applications. No terminal and no Python needed.
+        For Macs with Apple silicon (M1 and later), macOS 12 or newer.</p>
+      <a class="btn primary big" href="/download/{{ mac_app.name }}">Download Hidee {{ mac_app.version }} for Mac</a>
+      <p class="meta">{{ mac_app.size_mb }} MB. The app is not yet notarized by Apple, so the first time macOS says it
+        cannot check it: open System Settings → Privacy &amp; Security, scroll to Security, and click <b>Open Anyway</b>
+        next to Hidee (on older macOS, right-click Hidee and choose Open). After that it opens normally.</p>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if release %}
+  <h2 class="sub-title">{% if mac_app %}Or install from a terminal{% else %}Install from a terminal{% endif %}</h2>
+  <p class="meta">On macOS or Linux, with <a href="https://docs.astral.sh/uv/">uv</a> or Python 3.11 or newer. It
+    installs a single command, <code>hidee</code>, for your user.</p>
+  <ol class="install">
+    <li><span class="sq">1</span>
+      <div><h3>Install</h3>
+        <pre class="cmd"><code>curl -fsSL {{ site_url }}/install.sh | sh</code></pre>
+        <p class="meta">The script checks the download against its SHA-256, then installs Hidee with uv or pipx, or else in its own Python environment. <a href="/install.sh">Read it first</a>.</p>
+      </div></li>
+    <li><span class="sq">2</span>
+      <div><h3>Start</h3>
+        <pre class="cmd"><code>hidee app</code></pre>
+        <p class="meta">Hidee opens in its own window (on macOS; elsewhere in your browser). Start a session with your
+          AI agent there, or pick the practice lesson. The first time, Hidee asks once whether it may check for updates.</p>
+      </div></li>
+  </ol>
+
+  <div class="release">
+    <h3>Version {{ release.version }}</h3>
+    <dl>
+      {% if mac_app %}<dt>Mac app</dt><dd><a href="/download/{{ mac_app.name }}">{{ mac_app.name }}</a> · {{ mac_app.size_mb }} MB<br>
+        SHA-256 <code class="hash">{{ mac_app.sha256 }}</code></dd>{% endif %}
+      <dt>Package</dt><dd><a href="/download/{{ release.name }}">{{ release.name }}</a> · {{ release.size_kb }} KB<br>
+        SHA-256 <code class="hash">{{ release.sha256 }}</code></dd>
+      <dt>Install by hand</dt><dd><code>uv tool install {{ site_url }}/download/{{ release.name }}</code></dd>
+      <dt>Update</dt><dd><code>hidee update</code> installs a newer version only if it carries Hidee's release signature; the Mac app shows when a new version is out</dd>
+      <dt>Remove</dt><dd>Drag Hidee from Applications to the Trash, or <code>uv tool uninstall hidee</code> (or <code>pipx uninstall hidee</code>, or delete <code>~/.local/bin/hidee</code>); then delete <code>~/.hidee</code></dd>
+    </dl>
+  </div>
+  {% else %}
+  <p class="notice">The first release is being prepared. Meanwhile, <a href="{{ try_url }}/workspace">try Hidee online</a>.</p>
+  {% endif %}
+
+  <div class="next">
+    <div><h3>Not ready to install?</h3><p>The online demo shows the whole workspace with a scripted session and fictional data.</p>
+      <a class="btn" href="{{ try_url }}/workspace">Try it online</a></div>
+  </div>
+</section>
+{% endblock %}

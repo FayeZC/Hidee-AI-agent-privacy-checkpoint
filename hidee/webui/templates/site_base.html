@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Hidee · See higher. Know deeper.{% endblock %}</title>
+  <meta name="description" content="Hidee is a privacy checkpoint for AI agents. It shows every step your agent takes and holds back anything personal, secret, or internal until you say yes. It runs on your computer.">
+  <link rel="icon" href="/static/brand/hidee-mark.svg" type="image/svg+xml">
+  <link rel="preload" href="/static/fonts/space-grotesk-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{{ asset('app.css') }}">
+  <link rel="stylesheet" href="{{ asset('site.css') }}">
+</head>
+<body class="site">
+<header class="top site-top">
+  {% with href="/" %}{% include "_brand.html" %}{% endwith %}
+  <nav>
+    <a href="/" class="{{ 'on' if active == 'home' }}">Product</a>
+    <a href="/docs" class="{{ 'on' if active == 'docs' }}">Docs</a>
+    <a href="/download" class="{{ 'on' if active == 'download' }}">Download</a>
+    <a href="{{ try_url }}/workspace" class="cta">Try online</a>
+  </nav>
+</header>
+{% block body %}{% endblock %}
+<footer class="site-foot">
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <svg class="foot-mark" viewBox="0 0 240 224" aria-hidden="true">
+        <rect x="0" y="0" width="76" height="224" fill="#0A0A0A"/><rect x="76" y="75" width="88" height="74" fill="#0A0A0A"/>
+        <rect x="164" y="75" width="76" height="149" fill="#0A0A0A"/><rect x="164" y="0" width="76" height="75" fill="#1F3BFF"/>
+      </svg>
+      <p><b>HI</b>gher · <b>DEE</b>per</p>
+    </div>
+    <div><p class="foot-label">Product</p><a href="/">Overview</a><a href="{{ try_url }}/workspace">Try online</a></div>
+    <div><p class="foot-label">Get it</p><a href="/download">Download</a><a href="/docs">Docs</a></div>
+    <div><p class="foot-label">Your data</p><p class="foot-note">Hidee runs on your computer. No account, nothing sent to us.</p></div>
+  </div>
+  <p class="foot-line">© 2026 Hidee · version {{ version }}</p>
+</footer>
+</body>
+</html>
